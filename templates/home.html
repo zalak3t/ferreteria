@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ferremas | Ferretería Online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+  <!-- NAVBAR -->
+  <header class="bg-gray-800 shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3">
+        <img src="/static/img/logo.png" alt="Logo Ferremas" class="h-10 w-10 rounded-full">
+        <h1 class="text-2xl font-bold text-yellow-400">FERREMAS</h1>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="space-x-4 flex items-center text-sm text-gray-200 relative">
+        <a href="/" class="text-yellow-300 hover:text-white">Inicio</a>
+       <a href="{% url 'contacto' %}" class="hover:text-white">Contacto</a>
+
+
+        {% if user.is_authenticated %}
+          <span class="text-yellow-300 font-semibold">Hola, {{ user.username }}</span>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+              Cerrar sesión
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
+            Iniciar sesión
+          </a>
+        {% endif %}
+
+        <!-- Ícono del carrito -->
+        <a href="{% url 'ver_carrito' %}" class="relative ml-4 text-xl text-gray-200 hover:text-white">
+          🛒
+          {% with request.session.carrito|length as total %}
+            {% if total > 0 %}
+              <span class="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 rounded-full">
+                {{ total }}
+              </span>
+            {% endif %}
+          {% endwith %}
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CARRUSEL FUNCIONAL -->
+  <section class="mt-4 max-w-7xl mx-auto px-4 relative">
+    <div class="overflow-hidden rounded relative">
+      <div id="carousel-images" class="flex transition-transform duration-700 ease-in-out">
+        <img src="/static/img/carrusel1.jpg" class="w-full h-[300px] object-cover flex-shrink-0" alt="1">
+        <img src="/static/img/carrusel2.jpg" class="w-full h-[300px] object-cover flex-shrink-0" alt="2">
+        <img src="/static/img/carrusel3.jpg" class="w-full h-[300px] object-cover flex-shrink-0" alt="3">
+      </div>
+      <button onclick="prevSlide()" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 hover:bg-opacity-80 text-white px-3 py-2">
+        &#8592;
+      </button>
+      <button onclick="nextSlide()" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 hover:bg-opacity-80 text-white px-3 py-2">
+        &#8594;
+      </button>
+    </div>
+  </section>
+
+<!-- CATEGORÍAS DESTACADAS -->
+<section class="max-w-7xl mx-auto mt-10 px-4">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Categorías Destacadas</h2>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+    
+    <a href="{% url 'productos_por_categoria' 1 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/martillo.png" alt="Herramientas Manuales" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Herramientas Manuales</h3>
+    </a>
+
+    <a href="{% url 'productos_por_categoria' 2 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/taladro.png" alt="Herramientas Eléctricas" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Herramientas Eléctricas</h3>
+    </a>
+
+    <a href="{% url 'productos_por_categoria' 3 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/cemento.png" alt="Materiales Básicos" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Materiales Básicos</h3>
+    </a>
+
+    <a href="{% url 'productos_por_categoria' 4 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/pintura.png" alt="Acabados" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Acabados</h3>
+    </a>
+
+    <a href="{% url 'productos_por_categoria' 5 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/casco.png" alt="Equipos de Seguridad" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Equipos de Seguridad</h3>
+    </a>
+
+    <a href="{% url 'productos_por_categoria' 6 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+      <img src="/static/img/categorias/cinta.png" alt="Equipos de Medición" class="h-16 mx-auto mb-3">
+      <h3 class="font-semibold text-gray-800 text-sm">Equipos de Medición</h3>
+    </a>
+  </div>
+</section>
+
+
+<!-- CATÁLOGO DE PRODUCTOS -->
+<main class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-10">
+  {% for producto in productos %}
+  <div class="bg-white rounded shadow hover:shadow-lg transition p-4 flex flex-col justify-between">
+    {% if producto.imagen %}
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-40 object-cover rounded mb-2">
+    {% endif %}
+    <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
+    <p class="text-yellow-700 font-bold">${{ producto.precio }}</p>
+    <div class="mt-2 flex flex-col gap-2">
+      <a href="{% url 'detalle_producto' producto.id %}" class="text-sm text-blue-600 hover:underline">Ver más</a>
+
+      <!-- Botón agregar al carrito -->
+      <form method="POST" action="{% url 'agregar_al_carrito' producto.id %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-1 rounded">
+          Agregar al carrito
+        </button>
+      </form>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-center col-span-full text-gray-500">No hay productos disponibles.</p>
+  {% endfor %}
+</main>
+
+
+<!-- ¿QUIÉNES SOMOS? -->
+<section class="bg-white py-16 px-4">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">¿Quiénes somos?</h2>
+    <p class="text-gray-700 leading-relaxed text-justify">
+      <span class="font-semibold text-yellow-500">FERREMAS</span> es una distribuidora chilena con más de 40 años de experiencia en el rubro de la construcción y ferretería. Nacida en Santiago en los años 80, hoy cuenta con 4 sucursales en la Región Metropolitana y 3 en regiones, proyectando una expansión nacional.
+    </p>
+    <p class="text-gray-700 mt-4 leading-relaxed text-justify">
+      Ofrecemos una amplia gama de productos: herramientas manuales y eléctricas, pinturas, materiales eléctricos, fijaciones, seguridad industrial y mucho más. Trabajamos con marcas líderes como <span class="font-semibold">Bosch</span>, <span class="font-semibold">Makita</span>, <span class="font-semibold">Stanley</span> y <span class="font-semibold">Sika</span> para garantizar calidad y confianza en cada compra.
+    </p>
+    <p class="text-gray-700 mt-4 leading-relaxed text-justify">
+      En FERREMAS combinamos experiencia, servicio personalizado y tecnología para atender tanto a clientes particulares como a empresas constructoras. Nuestra estructura organizativa nos permite ofrecer atención especializada en cada área: ventas, bodega, administración y soporte técnico.
+    </p>
+  </div>
+</section>
+
+
+<!-- PREGUNTAS FRECUENTES -->
+<section class="bg-gray-100 py-16 px-4">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Preguntas Frecuentes</h2>
+
+    <div class="space-y-4">
+      <details class="bg-white shadow rounded p-4">
+        <summary class="font-semibold text-gray-800 cursor-pointer">¿Hacen despachos a domicilio?</summary>
+        <p class="text-gray-600 mt-2">Sí, realizamos despachos dentro de Santiago y regiones seleccionadas. Pronto habilitaremos cobertura nacional.</p>
+      </details>
+      <details class="bg-white shadow rounded p-4">
+        <summary class="font-semibold text-gray-800 cursor-pointer">¿Puedo retirar en tienda?</summary>
+        <p class="text-gray-600 mt-2">¡Claro! Tenemos retiro express en nuestra bodega central de lunes a sábado.</p>
+      </details>
+      <details class="bg-white shadow rounded p-4">
+        <summary class="font-semibold text-gray-800 cursor-pointer">¿Qué medios de pago aceptan?</summary>
+        <p class="text-gray-600 mt-2">Aceptamos tarjetas de crédito, débito, transferencia bancaria y próximamente Webpay.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- MARCAS QUE TRABAJAMOS -->
+<section class="bg-white py-16 px-4">
+  <div class="max-w-6xl mx-auto text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8">Marcas que trabajamos</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <img src="/static/img/marcas/bosch.png" alt="Bosch" class="mx-auto h-12 grayscale hover:grayscale-0 transition">
+      <img src="/static/img/marcas/makita.png" alt="Makita" class="mx-auto h-12 grayscale hover:grayscale-0 transition">
+      <img src="/static/img/marcas/stanley.png" alt="Stanley" class="mx-auto h-12 grayscale hover:grayscale-0 transition">
+      <img src="/static/img/marcas/sika.png" alt="Sika" class="mx-auto h-12 grayscale hover:grayscale-0 transition">
+    </div>
+  </div>
+</section>
+
+
+<!-- TESTIMONIOS -->
+<section class="bg-gray-100 py-16 px-4">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8">Lo que dicen nuestros clientes</h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="bg-white p-6 rounded shadow">
+        <p class="text-gray-700 italic">“Compré un taladro para mi taller y llegó en solo 2 días. Excelente calidad y atención.”</p>
+        <p class="text-yellow-500 mt-2">★★★★★</p>
+        <p class="text-gray-800 font-semibold mt-1">Carlos R.</p>
+      </div>
+      <div class="bg-white p-6 rounded shadow">
+        <p class="text-gray-700 italic">“Muy buenos precios para constructoras. Hicimos el pedido por WhatsApp y todo rápido.”</p>
+        <p class="text-yellow-500 mt-2">★★★★☆</p>
+        <p class="text-gray-800 font-semibold mt-1">Marcela G.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-gray-300 mt-10">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; 2025 Ferremas. Todos los derechos reservados.</p>
+      <div class="space-x-4 mt-2 md:mt-0">
+        <a href="#" class="hover:underline">Términos</a>
+        <a href="#" class="hover:underline">Privacidad</a>
+        <a href="#" class="hover:underline">Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT CARRUSEL -->
+  <script>
+    const carousel = document.getElementById('carousel-images');
+    const slides = carousel.children;
+    let index = 0;
+
+    function updateSlide() {
+      carousel.style.transform = `translateX(-${index * 100}%)`;
+    }
+
+    function nextSlide() {
+      index = (index + 1) % slides.length;
+      updateSlide();
+    }
+
+    function prevSlide() {
+      index = (index - 1 + slides.length) % slides.length;
+      updateSlide();
+    }
+
+    setInterval(() => {
+      nextSlide();
+    }, 5000);
+  </script>
+</body>
+</html>

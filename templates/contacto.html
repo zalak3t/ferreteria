@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Contáctanos | Ferremas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- NAVBAR -->
+  <header class="bg-gray-800 shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <img src="/static/img/logo.png" alt="Logo Ferremas" class="h-10 w-10 rounded-full">
+        <h1 class="text-2xl font-bold text-yellow-400">FERREMAS</h1>
+      </div>
+      <nav class="space-x-4 text-sm text-gray-200">
+        <a href="/" class="text-yellow-300 hover:text-white">Inicio</a>
+        <a href="{% url 'ver_carrito' %}" class="hover:text-white">Carrito</a>
+        <a href="{% url 'contacto' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">Contáctanos</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- FORMULARIO DE CONTACTO -->
+  <main class="max-w-3xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Contáctanos</h2>
+    <form method="POST" action="#" class="space-y-4 bg-white p-6 rounded shadow">
+      {% csrf_token %}
+      <div>
+        <label for="nombre" class="block text-gray-700 font-medium">Nombre</label>
+        <input type="text" id="nombre" name="nombre" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+      <div>
+        <label for="email" class="block text-gray-700 font-medium">Correo</label>
+        <input type="email" id="email" name="email" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+      <div>
+        <label for="mensaje" class="block text-gray-700 font-medium">Mensaje</label>
+        <textarea id="mensaje" name="mensaje" rows="5" required class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500"></textarea>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="bg-yellow-500 text-white font-semibold px-6 py-2 rounded hover:bg-yellow-600">Enviar mensaje</button>
+      </div>
+    </form>
+  </main>
+
+</body>
+</html>

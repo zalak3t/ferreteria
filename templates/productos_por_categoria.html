@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ categoria.nombre }} | Ferremas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ categoria.nombre }}</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {% for producto in productos %}
+      <div class="bg-white rounded shadow p-4">
+        {% if producto.imagen %}
+        <img src="{{ producto.imagen.url }}" class="w-full h-40 object-cover rounded mb-2">
+        {% endif %}
+        <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
+        <p class="text-yellow-700 font-bold">${{ producto.precio }}</p>
+        <a href="{% url 'detalle_producto' producto.id %}" class="text-sm text-blue-600 hover:underline">Ver más</a>
+      </div>
+      {% empty %}
+      <p class="text-gray-500 col-span-full">No hay productos en esta categoría.</p>
+      {% endfor %}
+    </div>
+  </main>
+</body>
+</html>
