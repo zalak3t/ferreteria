@@ -7,7 +7,7 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-  <div class="bg-white p-8 rounded shadow max-w-lg w-full">
+  <div class="bg-white p-8 rounded shadow max-w-xl w-full">
     <h2 class="text-2xl font-bold text-yellow-500 mb-6 text-center">Finalizar compra como invitado</h2>
 
     {% if error %}
@@ -16,25 +16,77 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{% url 'checkout_invitado' %}" class="space-y-4">
+    <form method="POST" action="{% url 'checkout_invitado' %}" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {% csrf_token %}
-      <div>
+
+      <!-- Nombre -->
+      <div class="sm:col-span-2">
         <label for="nombre" class="block text-gray-700 font-medium">Nombre completo</label>
         <input type="text" name="nombre" id="nombre" required value="{{ nombre|default:'' }}"
                class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
       </div>
-      <div>
+
+      <!-- Correo -->
+      <div class="sm:col-span-2">
         <label for="correo" class="block text-gray-700 font-medium">Correo electrónico</label>
         <input type="email" name="correo" id="correo" required value="{{ correo|default:'' }}"
                class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
       </div>
-      <div>
-        <label for="direccion" class="block text-gray-700 font-medium">Dirección de despacho</label>
-        <textarea name="direccion" id="direccion" required rows="3"
-                  class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">{{ direccion|default:'' }}</textarea>
+
+      <!-- Teléfono -->
+      <div class="sm:col-span-2">
+        <label for="telefono" class="block text-gray-700 font-medium">Teléfono de contacto</label>
+        <input type="tel" name="telefono" id="telefono" required value="{{ telefono|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
       </div>
-      <div class="text-center">
-        <button type="submit" class="bg-yellow-500 text-white font-semibold px-6 py-2 rounded hover:bg-yellow-600 transition">
+
+      <!-- Región -->
+      <div>
+        <label for="region" class="block text-gray-700 font-medium">Región</label>
+        <select name="region" id="region" required
+                class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+          <option value="">Selecciona una región</option>
+          <option>Región Metropolitana</option>
+          <option>Valparaíso</option>
+          <option>Biobío</option>
+          <option>Maule</option>
+          <option>La Araucanía</option>
+          <!-- Agrega más si quieres -->
+        </select>
+      </div>
+
+      <!-- Comuna -->
+      <div>
+        <label for="comuna" class="block text-gray-700 font-medium">Comuna</label>
+        <input type="text" name="comuna" id="comuna" required value="{{ comuna|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+
+      <!-- Calle -->
+      <div>
+        <label for="calle" class="block text-gray-700 font-medium">Calle</label>
+        <input type="text" name="calle" id="calle" required value="{{ calle|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+
+      <!-- Número -->
+      <div>
+        <label for="numero" class="block text-gray-700 font-medium">Número</label>
+        <input type="text" name="numero" id="numero" required value="{{ numero|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+
+      <!-- Complemento -->
+      <div class="sm:col-span-2">
+        <label for="complemento" class="block text-gray-700 font-medium">Complemento / Referencia (opcional)</label>
+        <input type="text" name="complemento" id="complemento" value="{{ complemento|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+
+      <!-- Botón -->
+      <div class="sm:col-span-2 text-center mt-4">
+        <button type="submit"
+                class="bg-yellow-500 text-white font-semibold px-6 py-2 rounded hover:bg-yellow-600 transition">
           Confirmar pedido
         </button>
       </div>

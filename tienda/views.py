@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Producto, Categoria
+from .models import Producto, Categoria , Pedido , PedidoItem 
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
@@ -112,28 +112,33 @@ def checkout_invitado(request):
     if request.method == "POST":
         nombre = request.POST.get('nombre')
         correo = request.POST.get('correo')
-        direccion = request.POST.get('direccion')
+        telefono = request.POST.get('telefono')
+        region = request.POST.get('region')
+        comuna = request.POST.get('comuna')
+        calle = request.POST.get('calle')
+        numero = request.POST.get('numero')
+        complemento = request.POST.get('complemento')
 
         # Validación básica
-        if not nombre or not correo or not direccion:
+        if not all([nombre, correo, telefono, region, comuna, calle, numero]):
             return render(request, 'checkout_invitado.html', {
-                'error': 'Todos los campos son obligatorios.',
-                'nombre': nombre,
-                'correo': correo,
-                'direccion': direccion
+                'error': 'Todos los campos obligatorios deben estar completos.',
+                'nombre': nombre, 'correo': correo, 'telefono': telefono,
+                'region': region, 'comuna': comuna, 'calle': calle,
+                'numero': numero, 'complemento': complemento
             })
 
         try:
             validate_email(correo)
         except ValidationError:
             return render(request, 'checkout_invitado.html', {
-                'error': 'Correo inválido.',
-                'nombre': nombre,
-                'correo': correo,
-                'direccion': direccion
+                'error': 'Correo electrónico inválido.',
+                'nombre': nombre, 'correo': correo, 'telefono': telefono,
+                'region': region, 'comuna': comuna, 'calle': calle,
+                'numero': numero, 'complemento': complemento
             })
 
-        # Crear pedido como invitado
+        # Crear pedido
         carrito = request.session.get('carrito', {})
         if not carrito:
             return redirect('/')
@@ -144,7 +149,12 @@ def checkout_invitado(request):
             total=0,
             nombre_cliente=nombre,
             correo_cliente=correo,
-            direccion_cliente=direccion
+            telefono=telefono,
+            region=region,
+            comuna=comuna,
+            calle=calle,
+            numero=numero,
+            complemento=complemento,
         )
 
         for id_str, cantidad in carrito.items():
@@ -160,6 +170,8 @@ def checkout_invitado(request):
 
         pedido.total = total
         pedido.save()
+
+        # Vaciar carrito
         request.session['carrito'] = {}
 
         return redirect('pago_pendiente', pedido_id=pedido.id)
