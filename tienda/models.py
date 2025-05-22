@@ -45,3 +45,6 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+nombre_cliente = models.CharField(max_length=100, null=True, blank=True)
+correo_cliente = models.EmailField(null=True, blank=True)
+direccion_cliente = models.TextField(null=True, blank=True)

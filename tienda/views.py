@@ -3,6 +3,9 @@ from .models import Producto, Categoria
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 # Vista principal que muestra todos los productos
 def home(request):
@@ -104,3 +107,61 @@ def productos_por_categoria(request, categoria_id):
         'productos': productos
     })
 
+@require_http_methods(["GET", "POST"])
+def checkout_invitado(request):
+    if request.method == "POST":
+        nombre = request.POST.get('nombre')
+        correo = request.POST.get('correo')
+        direccion = request.POST.get('direccion')
+
+        # Validación básica
+        if not nombre or not correo or not direccion:
+            return render(request, 'checkout_invitado.html', {
+                'error': 'Todos los campos son obligatorios.',
+                'nombre': nombre,
+                'correo': correo,
+                'direccion': direccion
+            })
+
+        try:
+            validate_email(correo)
+        except ValidationError:
+            return render(request, 'checkout_invitado.html', {
+                'error': 'Correo inválido.',
+                'nombre': nombre,
+                'correo': correo,
+                'direccion': direccion
+            })
+
+        # Crear pedido como invitado
+        carrito = request.session.get('carrito', {})
+        if not carrito:
+            return redirect('/')
+
+        total = 0
+        pedido = Pedido.objects.create(
+            usuario=None,
+            total=0,
+            nombre_cliente=nombre,
+            correo_cliente=correo,
+            direccion_cliente=direccion
+        )
+
+        for id_str, cantidad in carrito.items():
+            producto = Producto.objects.get(id=int(id_str))
+            subtotal = producto.precio * cantidad
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto=producto,
+                cantidad=cantidad,
+                subtotal=subtotal
+            )
+            total += subtotal
+
+        pedido.total = total
+        pedido.save()
+        request.session['carrito'] = {}
+
+        return redirect('pago_pendiente', pedido_id=pedido.id)
+
+    return render(request, 'checkout_invitado.html')

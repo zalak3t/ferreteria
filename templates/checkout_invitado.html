@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Compra como invitado | Ferremas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-8 rounded shadow max-w-lg w-full">
+    <h2 class="text-2xl font-bold text-yellow-500 mb-6 text-center">Finalizar compra como invitado</h2>
+
+    {% if error %}
+    <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'checkout_invitado' %}" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label for="nombre" class="block text-gray-700 font-medium">Nombre completo</label>
+        <input type="text" name="nombre" id="nombre" required value="{{ nombre|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+      <div>
+        <label for="correo" class="block text-gray-700 font-medium">Correo electrónico</label>
+        <input type="email" name="correo" id="correo" required value="{{ correo|default:'' }}"
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+      <div>
+        <label for="direccion" class="block text-gray-700 font-medium">Dirección de despacho</label>
+        <textarea name="direccion" id="direccion" required rows="3"
+                  class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500">{{ direccion|default:'' }}</textarea>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="bg-yellow-500 text-white font-semibold px-6 py-2 rounded hover:bg-yellow-600 transition">
+          Confirmar pedido
+        </button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

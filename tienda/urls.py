@@ -17,6 +17,7 @@ urlpatterns = [
     path('confirmar/', views.confirmar_compra, name='confirmar_compra'),
     path('contacto/', views.contacto_view, name='contacto'),
     path('categoria/<int:categoria_id>/', views.productos_por_categoria, name='productos_por_categoria'),
+    path('checkout/invitado/', views.checkout_invitado, name='checkout_invitado'),
 
 
 
