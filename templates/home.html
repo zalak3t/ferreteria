@@ -106,20 +106,21 @@
 </section>
 
 
-<!-- CATÁLOGO DE PRODUCTOS -->
+<!-- CATÁLOGO DE PRODUCTOS DESDE API -->
 <main class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-10">
   {% for producto in productos %}
   <div class="bg-white rounded shadow hover:shadow-lg transition p-4 flex flex-col justify-between">
     {% if producto.imagen %}
-    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-40 object-cover rounded mb-2">
+    <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="w-full h-40 object-cover rounded mb-2">
     {% endif %}
     <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
     <p class="text-yellow-700 font-bold">${{ producto.precio }}</p>
     <div class="mt-2 flex flex-col gap-2">
-      <a href="{% url 'detalle_producto' producto.id %}" class="text-sm text-blue-600 hover:underline">Ver más</a>
+      <!-- Si tu API tiene un ID o código de producto, úsalo aquí -->
+      <a href="/productos/{{ producto.codigo_producto }}/" class="text-sm text-blue-600 hover:underline">Ver más</a>
 
-      <!-- Botón agregar al carrito -->
-      <form method="POST" action="{% url 'agregar_al_carrito' producto.id %}">
+      <!-- Este formulario solo funcionará si implementas una vista que reciba el código del producto -->
+      <form method="POST" action="{% url 'agregar_al_carrito_api' producto.codigo_producto %}">
         {% csrf_token %}
         <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-1 rounded">
           Agregar al carrito
@@ -131,6 +132,8 @@
   <p class="text-center col-span-full text-gray-500">No hay productos disponibles.</p>
   {% endfor %}
 </main>
+
+
 
 
 <!-- ¿QUIÉNES SOMOS? -->

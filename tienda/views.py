@@ -1,5 +1,7 @@
+import requests  # <-- necesario para consumir la API externa
+
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Producto, Categoria , Pedido , PedidoItem 
+from .models import Producto, Categoria, Pedido, PedidoItem
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
@@ -7,9 +9,18 @@ from django.views.decorators.http import require_http_methods
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
-# Vista principal que muestra todos los productos
+
 def home(request):
-    productos = Producto.objects.all()
+    try:
+        respuesta = requests.get("http://localhost:3000/productos")  # Asegúrate de que esta URL esté activa
+        if respuesta.status_code == 200:
+            productos = respuesta.json()
+        else:
+            productos = []
+    except Exception as e:
+        print("Error al consumir API de productos:", e)
+        productos = []
+
     return render(request, 'home.html', {'productos': productos})
 
 # Vista de detalle de un producto específico
@@ -17,17 +28,37 @@ def detalle_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     return render(request, 'detalle.html', {'producto': producto})
 
-def agregar_al_carrito(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id)
-    carrito = request.session.get('carrito', {})
+# def agregar_al_carrito(request, producto_id):
+#     producto = get_object_or_404(Producto, id=producto_id)
+#     carrito = request.session.get('carrito', {})
 
-    if str(producto_id) in carrito:
-        carrito[str(producto_id)] += 1
-    else:
-        carrito[str(producto_id)] = 1
+#     if str(producto_id) in carrito:
+#         carrito[str(producto_id)] += 1
+#     else:
+#         carrito[str(producto_id)] = 1
 
-    request.session['carrito'] = carrito
-    return redirect('ver_carrito')
+#     request.session['carrito'] = carrito
+#     return redirect('ver_carrito')
+
+def agregar_al_carrito_api(request, codigo_producto):
+    if request.method == 'POST':
+        try:
+            url = f"http://localhost:3000/productos/{codigo_producto}"
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                carrito = request.session.get('carrito', {})
+
+                if codigo_producto in carrito:
+                    carrito[codigo_producto] += 1
+                else:
+                    carrito[codigo_producto] = 1
+
+                request.session['carrito'] = carrito
+        except Exception as e:
+            print("Error al agregar producto desde API:", e)
+
+    return redirect('home')
 
 
 def ver_carrito(request):
@@ -35,17 +66,44 @@ def ver_carrito(request):
     productos = []
     total = 0
 
-    for id_str, cantidad in carrito.items():
-        producto = Producto.objects.get(id=int(id_str))
-        subtotal = producto.precio * cantidad
-        total += subtotal
-        productos.append({
-            'producto': producto,
-            'cantidad': cantidad,
-            'subtotal': subtotal
-        })
+    for codigo_producto, cantidad in carrito.items():
+        try:
+            # Consultar producto desde la API
+            response = requests.get(f"http://localhost:3000/productos/{codigo_producto}")
+            if response.status_code == 200:
+                datos = response.json()
 
-    return render(request, 'carrito.html', {'productos': productos, 'total': total})
+                # Limpieza del precio para convertirlo a float
+                precio_str = str(datos['precio']).replace('$', '').replace(',', '').strip()
+                precio = float(precio_str)
+
+                producto = {
+                    'codigo': codigo_producto,
+                    'nombre': datos['nombre'],
+                    'precio': precio,
+                    'imagen': datos.get('imagen', '')
+                }
+
+                subtotal = precio * cantidad
+                productos.append({
+                    'producto': producto,
+                    'cantidad': cantidad,
+                    'subtotal': subtotal
+                })
+
+                total += subtotal
+            else:
+                print(f"Producto no encontrado en API: {codigo_producto}")
+
+        except Exception as e:
+            print(f"Error cargando producto desde API: {codigo_producto} →", e)
+
+    return render(request, 'carrito.html', {
+        'productos': productos,
+        'total': total
+    })
+
+
 
 
 def eliminar_del_carrito(request, producto_id):
@@ -59,35 +117,79 @@ def eliminar_del_carrito(request, producto_id):
 
 def registro_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
+        rut = request.POST.get('rut')
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        password = request.POST.get('pass')  # debe coincidir con 'pass_' en la API
+        tipo = request.POST.get('tipo', 'normal')
 
-        if User.objects.filter(username=username).exists():
-            return render(request, 'registro.html', {'error': 'Ese nombre de usuario ya está en uso.'})
+        if not all([rut, nombre, email, password]):
+            return render(request, 'registro.html', {
+                'error': 'Todos los campos son obligatorios.'
+            })
 
-        user = User.objects.create_user(username=username, email=email, password=password)
-        login(request, user)  # Login automático tras registrarse
-        return redirect('/')
-    
+        try:
+            # Usa data= para enviar como formulario (form-urlencoded)
+            response = requests.post('http://localhost:8001/usuarios/', data={
+                'rut': rut,
+                'nombre': nombre,
+                'email': email,
+                'pass_': password,  # usa pass_ porque la API lo espera así
+                'tipo': tipo
+            })
+
+            if response.status_code in [200, 201]:
+                return redirect('/login/')
+            else:
+                return render(request, 'registro.html', {
+                    'error': f"Error al registrar usuario: {response.json().get('detail', 'Error desconocido')}"
+                })
+
+        except Exception as e:
+            return render(request, 'registro.html', {
+                'error': f"Error de conexión con la API: {str(e)}"
+            })
+
     return render(request, 'registro.html')
 
+ 
 def checkout_view(request):
     carrito = request.session.get('carrito', {})
     productos = []
     total = 0
 
-    for id_str, cantidad in carrito.items():
-        producto = Producto.objects.get(id=int(id_str))
-        subtotal = producto.precio * cantidad
-        total += subtotal
-        productos.append({
-            'producto': producto,
-            'cantidad': cantidad,
-            'subtotal': subtotal
-        })
+    for codigo_producto, cantidad in carrito.items():
+        try:
+            response = requests.get(f"http://localhost:3000/productos/{codigo_producto}")
+            if response.status_code == 200:
+                datos = response.json()
 
-    return render(request, 'checkout.html', {'productos': productos, 'total': total})
+                precio_str = str(datos['precio']).replace('$', '').replace(',', '').strip()
+                precio = float(precio_str)
+
+                producto = {
+                    'codigo': codigo_producto,
+                    'nombre': datos['nombre'],
+                    'precio': precio,
+                    'imagen': datos.get('imagen', '')
+                }
+
+                subtotal = precio * cantidad
+                productos.append({
+                    'producto': producto,
+                    'cantidad': cantidad,
+                    'subtotal': subtotal
+                })
+                total += subtotal
+        except Exception as e:
+            print(f"Error cargando producto desde API en checkout: {codigo_producto} →", e)
+
+    return render(request, 'checkout.html', {
+        'productos': productos,
+        'total': total
+    })
+
+
 
 
 @require_POST
@@ -138,42 +240,82 @@ def checkout_invitado(request):
                 'numero': numero, 'complemento': complemento
             })
 
-        # Crear pedido
+        # Verificamos que haya algo en el carrito
         carrito = request.session.get('carrito', {})
         if not carrito:
             return redirect('/')
 
+        productos = []
         total = 0
-        pedido = Pedido.objects.create(
-            usuario=None,
-            total=0,
-            nombre_cliente=nombre,
-            correo_cliente=correo,
-            telefono=telefono,
-            region=region,
-            comuna=comuna,
-            calle=calle,
-            numero=numero,
-            complemento=complemento,
-        )
 
-        for id_str, cantidad in carrito.items():
-            producto = Producto.objects.get(id=int(id_str))
-            subtotal = producto.precio * cantidad
-            PedidoItem.objects.create(
-                pedido=pedido,
-                producto=producto,
-                cantidad=cantidad,
-                subtotal=subtotal
-            )
-            total += subtotal
+        for codigo_producto, cantidad in carrito.items():
+            try:
+                response = requests.get(f"http://localhost:3000/productos/{codigo_producto}")
+                if response.status_code == 200:
+                    datos = response.json()
+                    precio = float(str(datos['precio']).replace('$', '').replace(',', '').strip())
+                    subtotal = precio * cantidad
+                    producto = {
+                        'codigo': codigo_producto,
+                        'nombre': datos['nombre'],
+                        'precio': precio,
+                        'imagen': datos.get('imagen', ''),
+                        'cantidad': cantidad,
+                        'subtotal': subtotal
+                    }
+                    productos.append(producto)
+                    total += subtotal
+            except Exception as e:
+                print(f"Error cargando producto desde API en checkout_invitado: {codigo_producto} →", e)
 
-        pedido.total = total
-        pedido.save()
-
-        # Vaciar carrito
+        # Aquí podrías guardar los datos del pedido en la base si lo deseas
         request.session['carrito'] = {}
 
-        return redirect('pago_pendiente', pedido_id=pedido.id)
+        # Simulamos confirmación del pedido con ID ficticio
+        return render(request, 'exito.html', {
+            'nombre': nombre,
+            'correo': correo,
+            'productos': productos,
+            'total': total
+        })
 
     return render(request, 'checkout_invitado.html')
+
+
+def productos_externos(request):
+    try:
+        respuesta = requests.get("http://localhost:3000/productos")  # Asegúrate de que tu API esté corriendo
+        if respuesta.status_code == 200:
+            productos = respuesta.json()
+        else:
+            productos = []
+    except Exception as e:
+        print("Error al consumir API:", e)
+        productos = []
+
+    return render(request, 'productos_externos.html', {'productos': productos})
+
+def agregar_al_carrito_api(request, codigo_producto):
+    if request.method == 'POST':
+        try:
+            # Llamar a tu API Express por el código de producto
+            url = f"http://localhost:3000/productos/{codigo_producto}"
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                producto = response.json()
+
+                # Acceder a la sesión del carrito
+                carrito = request.session.get('carrito', {})
+
+                # Sumar cantidad o agregar nuevo
+                if codigo_producto in carrito:
+                    carrito[codigo_producto] += 1
+                else:
+                    carrito[codigo_producto] = 1
+
+                request.session['carrito'] = carrito
+        except Exception as e:
+            print("Error al agregar producto desde API:", e)
+
+    return redirect('home')  # Redirigir al home u otra vista

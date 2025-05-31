@@ -19,8 +19,14 @@
       {% csrf_token %}
 
       <div class="mb-4">
-        <label for="username" class="block text-sm font-medium text-gray-700">Nombre de usuario</label>
-        <input type="text" name="username" required
+        <label for="rut" class="block text-sm font-medium text-gray-700">RUT (sin dígito verificador)</label>
+        <input type="number" name="rut" required
+               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500">
+      </div>
+
+      <div class="mb-4">
+        <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre completo</label>
+        <input type="text" name="nombre" required
                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500">
       </div>
 
@@ -31,16 +37,13 @@
       </div>
 
       <div class="mb-4">
-        <label for="rut" class="block text-sm font-medium text-gray-700">RUT (opcional)</label>
-        <input type="text" name="rut"
-               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500">
+        <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+        <input type="password" name="pass" required
+         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500">
       </div>
 
-      <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-        <input type="password" name="password" required
-               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500">
-      </div>
+
+      <input type="hidden" name="tipo" value="normal">
 
       {% if error %}
       <p class="text-sm text-red-600 mb-4">{{ error }}</p>
