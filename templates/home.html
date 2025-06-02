@@ -22,6 +22,7 @@
        <a href="{% url 'contacto' %}" class="hover:text-white">Contacto</a>
 
 
+<<<<<<< HEAD
         {% if user.is_authenticated %}
           <span class="text-yellow-300 font-semibold">Hola, {{ user.username }}</span>
           <form method="POST" action="{% url 'logout' %}">
@@ -36,6 +37,22 @@
           </a>
         {% endif %}
 
+=======
+      {% if request.session.usuario %}
+      <span class="text-yellow-300 font-semibold">
+       Hola, {{ request.session.usuario.nombre }}
+        </span>
+        <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded ml-2">
+        Cerrar sesión
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
+        Iniciar sesión
+        </a>
+        {% endif %}
+
+
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
         <!-- Ícono del carrito -->
         <a href="{% url 'ver_carrito' %}" class="relative ml-4 text-xl text-gray-200 hover:text-white">
           🛒

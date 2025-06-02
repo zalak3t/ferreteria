@@ -8,7 +8,11 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.http import require_http_methods
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+<<<<<<< HEAD
 
+=======
+from django.contrib import messages
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
 
 def home(request):
     try:
@@ -103,9 +107,12 @@ def ver_carrito(request):
         'total': total
     })
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
 def eliminar_del_carrito(request, producto_id):
     carrito = request.session.get('carrito', {})
 
@@ -115,6 +122,44 @@ def eliminar_del_carrito(request, producto_id):
 
     return redirect('ver_carrito')
 
+<<<<<<< HEAD
+=======
+
+def login_view(request):
+    if request.method == 'POST':
+        rut = request.POST.get('username')
+        password = request.POST.get('password')
+
+        if not rut or not password:
+            return render(request, 'login.html', {'error': 'Debes ingresar RUT y contraseña.'})
+
+        try:
+            response = requests.post(
+                'http://localhost:8001/usuarios/login',
+                data={'rut': rut, 'password': password}
+            )
+
+            if response.status_code == 200:
+                usuario = response.json()
+                request.session['usuario'] = usuario
+                messages.success(request, f"Bienvenido, {usuario['nombre']} 👋")
+                return redirect('/')
+            else:
+                return render(request, 'login.html', {
+                    'error': response.json().get('detail', 'Credenciales incorrectas')
+                })
+
+        except Exception as e:
+            return render(request, 'login.html', {'error': f'Error de conexión: {str(e)}'})
+
+    return render(request, 'login.html')
+
+def logout_view(request):
+    request.session.flush()
+    return redirect('home')
+
+
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
 def registro_view(request):
     if request.method == 'POST':
         rut = request.POST.get('rut')

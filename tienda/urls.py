@@ -2,6 +2,11 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
+<<<<<<< HEAD
+=======
+from .views import logout_view
+
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -21,6 +26,12 @@ urlpatterns = [
     path('productos-api/', views.productos_externos, name='productos_api'),
     path('agregar-api/<str:codigo_producto>/', views.agregar_al_carrito_api, name='agregar_al_carrito_api'),
     path('eliminar-carrito/<str:producto_id>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
+<<<<<<< HEAD
+=======
+    path('logout/', logout_view, name="logout"),
+
+
+>>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
    
 
 
