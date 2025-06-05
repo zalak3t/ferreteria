@@ -237,22 +237,24 @@ def checkout_view(request):
 
     for codigo_producto, cantidad in carrito.items():
         try:
+            # Consumir producto desde la API externa
             response = requests.get(f"http://localhost:3000/productos/{codigo_producto}")
             if response.status_code == 200:
                 datos = response.json()
 
+                # Convertir precio a número
                 precio_str = str(datos['precio']).replace('$', '').replace(',', '').strip()
                 precio = float(precio_str)
 
+                # Crear estructura de producto
                 producto = {
-                            'producto_id': datos['id'],  # ✅ este campo es clave
-                            'codigo': codigo_producto,
-                            'nombre': datos['nombre'],
-                            'precio': precio,
-                            'imagen': datos.get('imagen', '')
-}
+                    'codigo': codigo_producto,
+                    'nombre': datos['nombre'],
+                    'precio': precio,
+                    'imagen': f"/static/img/productos/{datos['imagen']}"  # ruta local correcta
+                }
 
-
+                # Agregar al listado
                 subtotal = precio * cantidad
                 productos.append({
                     'producto': producto,
@@ -260,14 +262,15 @@ def checkout_view(request):
                     'subtotal': subtotal
                 })
                 total += subtotal
+            else:
+                print(f"Producto no encontrado: {codigo_producto}")
         except Exception as e:
-            print(f"Error cargando producto desde API en checkout: {codigo_producto} →", e)
+            print(f"Error al cargar producto {codigo_producto} →", e)
 
     return render(request, 'checkout.html', {
         'productos': productos,
         'total': total
     })
-
 
 
 
@@ -567,3 +570,22 @@ def confirmacion_pago(request):
     }
 
     return render(request, 'exito.html', context)
+
+def home_view(request):
+    # Obtener productos desde la API externa
+    response = requests.get("http://localhost:8000/api/productos/")
+    productos = response.json()
+
+    # Obtener el valor del dólar (ejemplo)
+    valor_dolar = 900  # Ojalá obtenido desde una API real
+
+    # Agregar precio en dólares a cada producto
+    for producto in productos:
+        producto["precio_usd"] = round(float(producto["precio"]) / valor_dolar, 2)
+
+
+    context = {
+        "productos": productos,
+        "valor_dolar": valor_dolar
+    }
+    return render(request, "home.html", context)

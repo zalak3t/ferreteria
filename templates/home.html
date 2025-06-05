@@ -105,36 +105,72 @@
 
 
 <!-- CATÁLOGO DE PRODUCTOS DESDE API -->
+{% load static %}
+
+<!-- CATÁLOGO DE PRODUCTOS DESDE API -->
 <main class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-10">
   {% for producto in productos %}
-  <div class="bg-white rounded shadow hover:shadow-lg transition p-4 flex flex-col justify-between">
-    
-    <!-- Imagen desde API o fallback -->
-    <img 
-      src="{{ producto.imagen|default:'/static/img/productos/default.png' }}" 
-      alt="{{ producto.nombre }}" 
-      class="w-full h-40 object-cover rounded mb-2">
-    
-    <!-- Nombre y precio -->
-    <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
-    <p class="text-yellow-700 font-bold">${{ producto.precio }}</p>
+    <div class="bg-white rounded shadow hover:shadow-lg transition flex flex-col justify-between p-4">
+      
+      <!-- Imagen del producto -->
+      <img
+        src="{% static 'img/productos/' %}{{ producto.codigo_producto }}.jpg"
+        alt="{{ producto.nombre }}"
+        class="w-full h-40 object-cover rounded mb-2"
+        onerror="this.onerror=null; this.src='{% static 'img/productos/default.png' %}';"
+      />
 
-    <!-- Botón Agregar al carrito -->
-    <div class="mt-4">
-      <form method="POST" action="{% url 'agregar_al_carrito_api' producto.codigo_producto %}">
-        {% csrf_token %}
-        <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-1 rounded">
-          Agregar al carrito
-        </button>
-      </form>
+      <!-- Nombre y precio -->
+      <div class="flex flex-col flex-grow">
+        <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
+        
+        <!-- Descripción corta -->
+        <p class="text-sm text-gray-600 mt-1">
+          {% if "amoladora" in producto.nombre|lower %}
+            Herramienta potente para cortar, pulir o desbastar materiales.
+          {% elif "sierra" in producto.nombre|lower %}
+            Ideal para cortes precisos en madera y otros materiales.
+          {% elif "mortero" in producto.nombre|lower %}
+            Mezcla resistente para reparación de superficies estructurales.
+          {% elif "adhesivo" in producto.nombre|lower %}
+            Excelente adherencia para cerámicos y materiales porosos.
+          {% elif "masilla" in producto.nombre|lower %}
+            Perfecta para cubrir imperfecciones en madera y muros.
+          {% elif "guante" in producto.nombre|lower %}
+            Protege tus manos al realizar trabajos de alto riesgo.
+          {% elif "casco" in producto.nombre|lower %}
+            Protección esencial para la cabeza en obras o talleres.
+          {% elif "nivel" in producto.nombre|lower %}
+            Asegura precisión en instalaciones y construcciones.
+          {% elif "cinta" in producto.nombre|lower %}
+            Herramienta básica para medir con exactitud en terreno.
+          {% elif "martillo" in producto.nombre|lower %}
+            Fundamental para golpes, ajustes y trabajos manuales.
+          {% elif "destornillador" in producto.nombre|lower %}
+            Ideal para atornillar o desatornillar tornillos con precisión.
+          {% else %}
+            Herramienta o insumo esencial para proyectos de construcción.
+          {% endif %}
+        </p>
+        <p class="text-yellow-700 font-bold">${{ producto.precio }} CLP</p>
+<p class="text-sm text-gray-600 italic">~ USD {{ producto.precio_usd }}</p>
+
+
+        <!-- Botón Agregar al carrito -->
+        <form method="POST" action="{% url 'agregar_al_carrito_api' producto.codigo_producto %}" class="mt-auto">
+          {% csrf_token %}
+          <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-1 rounded">
+            Agregar al carrito
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
   {% empty %}
-  <p class="text-center col-span-full text-gray-500">No hay productos disponibles.</p>
+    <p class="text-center col-span-full text-gray-500">No hay productos disponibles.</p>
   {% endfor %}
 </main>
-%}
-</main>
+
+
 
 
 
