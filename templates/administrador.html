@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración | Ferremas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+  <header class="bg-gray-800 shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <img src="/static/img/logo.png" alt="Logo Ferremas" class="h-10 w-10 rounded-full">
+        <h1 class="text-2xl font-bold text-yellow-400">FERREMAS</h1>
+      </div>
+      <nav class="space-x-4 flex items-center text-sm text-gray-200 relative">
+        <a href="/" class="text-yellow-300 hover:text-white">Inicio</a>
+        <a href="{% url 'contacto' %}" class="hover:text-white">Contacto</a>
+        {% if request.session.usuario %}
+          <span class="text-yellow-300 font-semibold">Hola, {{ request.session.usuario.nombre }}</span>
+          <form method="POST" action="{% url 'logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded ml-2">
+              Cerrar sesión
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
+            Iniciar sesión
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Panel de Administración</h2>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Gestión de Usuarios -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">Gestión de Usuarios</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="px-4 py-2 text-left">Nombre</th>
+                <th class="px-4 py-2 text-left">Email</th>
+                <th class="px-4 py-2 text-left">Acciones</th>
+              </tr>
+            </thead>
+        <tbody>
+      {% if usuarios %}
+      {% for usuario in usuarios %}
+          <tr class="border-b">
+            <td class="px-4 py-2">{{ usuario.username }}</td>
+            <td class="px-4 py-2">{{ usuario.email }}</td>
+            <td class="px-4 py-2">
+              <a href="#" class="text-blue-500 hover:text-blue-700 mr-2">Editar</a>
+              <a href="#" class="text-red-500 hover:text-red-700">Eliminar</a>
+            </td>
+          </tr>
+        {% endfor %}
+      {% else %}
+    <tr>
+      <td colspan="3" class="px-4 py-2 text-gray-500">No hay usuarios disponibles.</td>
+    </tr>
+  {% endif %}
+</tbody>
+          </table>
+        </div>
+        <a href="{% url 'crear_usuario' %}" class="mt-4 inline-block bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600">
+          + Nuevo Usuario
+        </a>
+      </div>
+
+      <!-- Gestión de Productos -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">Gestión de Productos</h3>
+        <table class="min-w-full">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="px-4 py-2 text-left">Producto</th>
+              <th class="px-4 py-2 text-left">Precio</th>
+              <th class="px-4 py-2 text-left">Stock</th>
+              <th class="px-4 py-2 text-left">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr class="border-b">
+              <td class="px-4 py-2">{{ producto.nombre }}</td>
+              <td class="px-4 py-2">${{ producto.precio }}</td>
+              <td class="px-4 py-2">{{ producto.stock }}</td>
+              <td class="px-4 py-2">
+                <a class="text-blue-500 hover:text-blue-700 mr-2">Editar</a>
+                <a class="text-red-500 hover:text-red-700">Eliminar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <a class="mt-4 inline-block bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-600">
+          + Nuevo Producto
+        </a>
+      </div>
+
+      <!-- Reporte de Ventas -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">Reporte de Ventas</h3>
+        <div class="space-y-4">
+          {% for venta in ventas %}
+          <div class="border-b pb-4">
+            <p class="font-medium">Venta #{{ venta.id }}</p>
+            <p class="text-sm">Cliente: {{ venta.cliente.username }}</p>
+            <p class="text-sm">Total: ${{ venta.total }}</p>
+            <p class="text-sm">Estado: {{ venta.get_estado_display }}</p>
+            <a class="text-blue-500 hover:text-blue-700 text-sm">Ver detalle</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

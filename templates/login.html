@@ -15,8 +15,6 @@
     
     <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Iniciar sesión</h2>
 
-<<<<<<< HEAD
-=======
     {% if error %}
       <div class="mb-4 text-red-600 bg-red-100 border border-red-300 rounded p-2 text-sm">
         {{ error }}
@@ -29,51 +27,30 @@
       </div>
     {% endif %}
 
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
     <form method="POST" action="{% url 'login' %}">
       {% csrf_token %}
       
       <div class="mb-4">
-<<<<<<< HEAD
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" id="email" name="username" required
+        <input type="email" id="email" name="correo" required
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               value="{{ email|default:'' }}">
-=======
-        <label for="username" class="block text-sm font-medium text-gray-700">RUT</label>
-        <input type="text" id="username" name="username" required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-              value="{{ username|default:'' }}">
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
       </div>
-
+      
       <div class="mb-4">
         <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
         <input type="password" id="password" name="password" required
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
       </div>
 
-<<<<<<< HEAD
-      {% if error %}
-      <div class="mb-4 text-red-600 text-sm">
-        {{ error }}
-      </div>
-      {% endif %}
-
-      <button type="submit" class="w-full bg-yellow-500 text-white py-2 px-4 rounded">
-=======
       <button type="submit" class="w-full bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 font-semibold transition">
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
         Ingresar
       </button>
     </form>
 
-    <div class="mt-6 text-center">
-<<<<<<< HEAD
-      <a href="#" class="text-sm text-gray-500 hover:underline">¿Olvidaste tu contraseña?</a>
-=======
+    <div class="mt-6 text-center space-y-2">
+      <a href="#" class="text-sm text-gray-500 hover:underline">¿Olvidaste tu contraseña?</a><br>
       <a href="{% url 'registro' %}" class="text-sm text-gray-500 hover:underline">¿No tienes cuenta? Regístrate</a>
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
     </div>
   </div>
 

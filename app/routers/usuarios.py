@@ -76,33 +76,36 @@ def agregar_usuario(
         return {"mensaje": "Usuario agregado con éxito"}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=f"Error al agregar usuario: {str(ex)}")
-<<<<<<< HEAD
-=======
-    
+
 @router.post("/login")
-def login_usuario(rut: int = Form(...), password: str = Form(...)):
+def login_usuario(email: str = Form(...), password: str = Form(...)):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
-        cursor.execute("SELECT nombre, email, tipo FROM usuarios WHERE rut = :rut AND pass = :pass",
-                       {"rut": rut, "pass": password})
+        cursor.execute("""
+            SELECT rut, nombre, tipo FROM usuarios 
+            WHERE email = :email AND pass = :pass
+        """, {
+            "email": email,
+            "pass": password
+        })
         usuario = cursor.fetchone()
         cursor.close()
         cone.close()
 
         if usuario:
             return {
-                "rut": rut,
-                "nombre": usuario[0],
-                "email": usuario[1],
+                "rut": usuario[0],
+                "nombre": usuario[1],
+                "email": email,
                 "tipo": usuario[2]
             }
         else:
             raise HTTPException(status_code=401, detail="Credenciales inválidas")
     except Exception as ex:
         raise HTTPException(status_code=500, detail=f"Error al validar credenciales: {str(ex)}")
+
  
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
 
 
 @router.put("/{rut_actualizar}")

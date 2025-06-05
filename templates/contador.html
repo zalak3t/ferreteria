@@ -1,0 +1,101 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración | Ferremas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+  <header class="bg-gray-800 shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3">
+        <img src="/static/img/logo.png" alt="Logo Ferremas" class="h-10 w-10 rounded-full">
+        <h1 class="text-2xl font-bold text-yellow-400">FERREMAS</h1>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="space-x-4 flex items-center text-sm text-gray-200 relative">
+  <a href="/" class="text-yellow-300 hover:text-white">Inicio</a>
+  <a href="{% url 'contacto' %}" class="hover:text-white">Contacto</a>
+
+  {% if request.session.usuario %}
+    <span class="text-yellow-300 font-semibold">
+      Hola, {{ request.session.usuario.nombre }}
+    </span>
+    <form method="POST" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+        Cerrar sesión
+      </button>
+    </form>
+  {% else %}
+    <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
+      Iniciar sesión
+    </a>
+  {% endif %}
+
+  <!-- Ícono del carrito -->
+  <a href="{% url 'ver_carrito' %}" class="relative ml-4 text-xl text-gray-200 hover:text-white">
+    🛒
+    {% with request.session.carrito|length as total %}
+      {% if total > 0 %}
+        <span class="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 rounded-full">
+          {{ total }}
+        </span>
+      {% endif %}
+    {% endwith %}
+  </a>
+</nav>
+
+
+    </div>
+  </header>
+
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Panel de Contador</h2>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">Ventas del Mes</h3>
+        <table class="min-w-full">
+            <thead>
+            <tr class="bg-gray-100">
+                <th class="px-4 py-2 text-left">Fecha</th>
+                <th class="px-4 py-2 text-left">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for venta in ventas_mes %}
+            <tr class="border-b">
+                <td class="px-4 py-2">{{ venta.fecha|date:"d/m/Y" }}</td>
+                <td class="px-4 py-2">${{ venta.total }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-4 p-4 bg-gray-50 rounded">
+            <p class="font-semibold">Total del mes: ${{ total_mes }}</p>
+        </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">Estadísticas</h3>
+        <div class="space-y-4">
+            <div>
+            <p class="font-medium">Producto más vendido:</p>
+            <p>{{ producto_mas_vendido.nombre }} ({{ producto_mas_vendido.total_vendido }} unidades)</p>
+            </div>
+            <div>
+            <p class="font-medium">Ventas por categoría:</p>
+            <ul class="list-disc pl-4">
+                {% for cat in ventas_por_categoria %}
+                <li>{{ cat.categoria }}: ${{ cat.total }}</li>
+                {% endfor %}
+            </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+</body>

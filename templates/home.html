@@ -22,37 +22,22 @@
        <a href="{% url 'contacto' %}" class="hover:text-white">Contacto</a>
 
 
-<<<<<<< HEAD
-        {% if user.is_authenticated %}
-          <span class="text-yellow-300 font-semibold">Hola, {{ user.username }}</span>
-          <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-              Cerrar sesión
-            </button>
-          </form>
-        {% else %}
-          <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
-            Iniciar sesión
-          </a>
-        {% endif %}
+       {% if request.session.usuario %}
+  <span class="text-yellow-300 font-semibold">
+    Hola, {{ request.session.usuario.nombre }}
+  </span>
+  <form method="POST" action="{% url 'logout' %}" class="inline">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded ml-2">
+      Cerrar sesión
+    </button>
+  </form>
+{% else %}
+  <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
+    Iniciar sesión
+  </a>
+{% endif %}
 
-=======
-      {% if request.session.usuario %}
-      <span class="text-yellow-300 font-semibold">
-       Hola, {{ request.session.usuario.nombre }}
-        </span>
-        <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded ml-2">
-        Cerrar sesión
-        </a>
-        {% else %}
-        <a href="{% url 'login' %}" class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 font-semibold">
-        Iniciar sesión
-        </a>
-        {% endif %}
-
-
->>>>>>> 9c50cf0 (actualizacion de uso de apis para iniciar sesion)
         <!-- Ícono del carrito -->
         <a href="{% url 'ver_carrito' %}" class="relative ml-4 text-xl text-gray-200 hover:text-white">
           🛒
@@ -86,57 +71,56 @@
   </section>
 
 <!-- CATEGORÍAS DESTACADAS -->
+<!-- TIPOS DE PRODUCTOS -->
 <section class="max-w-7xl mx-auto mt-10 px-4">
-  <h2 class="text-2xl font-bold text-gray-800 mb-6">Categorías Destacadas</h2>
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Tipos de productos que puedes encontrar aquí</h2>
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-    
-    <a href="{% url 'productos_por_categoria' 1 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/martillo.png" alt="Herramientas Manuales" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Herramientas Manuales</h3>
-    </a>
-
-    <a href="{% url 'productos_por_categoria' 2 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    </div>
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/taladro.png" alt="Herramientas Eléctricas" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Herramientas Eléctricas</h3>
-    </a>
-
-    <a href="{% url 'productos_por_categoria' 3 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    </div>
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/cemento.png" alt="Materiales Básicos" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Materiales Básicos</h3>
-    </a>
-
-    <a href="{% url 'productos_por_categoria' 4 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    </div>
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/pintura.png" alt="Acabados" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Acabados</h3>
-    </a>
-
-    <a href="{% url 'productos_por_categoria' 5 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    </div>
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/casco.png" alt="Equipos de Seguridad" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Equipos de Seguridad</h3>
-    </a>
-
-    <a href="{% url 'productos_por_categoria' 6 %}" class="bg-white shadow rounded p-4 text-center hover:shadow-lg transition block">
+    </div>
+    <div class="bg-white shadow rounded p-4 text-center block">
       <img src="/static/img/categorias/cinta.png" alt="Equipos de Medición" class="h-16 mx-auto mb-3">
       <h3 class="font-semibold text-gray-800 text-sm">Equipos de Medición</h3>
-    </a>
+    </div>
   </div>
 </section>
+
 
 
 <!-- CATÁLOGO DE PRODUCTOS DESDE API -->
 <main class="flex-1 p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-10">
   {% for producto in productos %}
   <div class="bg-white rounded shadow hover:shadow-lg transition p-4 flex flex-col justify-between">
-    {% if producto.imagen %}
-    <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" class="w-full h-40 object-cover rounded mb-2">
-    {% endif %}
+    
+    <!-- Imagen desde API o fallback -->
+    <img 
+      src="{{ producto.imagen|default:'/static/img/productos/default.png' }}" 
+      alt="{{ producto.nombre }}" 
+      class="w-full h-40 object-cover rounded mb-2">
+    
+    <!-- Nombre y precio -->
     <h2 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h2>
     <p class="text-yellow-700 font-bold">${{ producto.precio }}</p>
-    <div class="mt-2 flex flex-col gap-2">
-      <!-- Si tu API tiene un ID o código de producto, úsalo aquí -->
-      <a href="/productos/{{ producto.codigo_producto }}/" class="text-sm text-blue-600 hover:underline">Ver más</a>
 
-      <!-- Este formulario solo funcionará si implementas una vista que reciba el código del producto -->
+    <!-- Botón Agregar al carrito -->
+    <div class="mt-4">
       <form method="POST" action="{% url 'agregar_al_carrito_api' producto.codigo_producto %}">
         {% csrf_token %}
         <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-1 rounded">
@@ -149,6 +133,9 @@
   <p class="text-center col-span-full text-gray-500">No hay productos disponibles.</p>
   {% endfor %}
 </main>
+%}
+</main>
+
 
 
 
